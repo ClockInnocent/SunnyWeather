@@ -1,5 +1,6 @@
 package com.sunnyweather.android.ui.place
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -31,7 +32,7 @@ class PlaceFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        if (viewModel.isPlaceSaved()) {
+        if (activity is  MainActivity && viewModel.isPlaceSaved()) {
             val place = viewModel.getSavedPlace()
             val intent = Intent(context, WeatherActivity::class.java).apply {
                 putExtra("location_lng", place.location.lng)
@@ -43,8 +44,14 @@ class PlaceFragment : Fragment() {
             return
         }
 
+        val activity = if (activity is MainActivity) {
+            activity as MainActivity
+        } else {
+            activity as WeatherActivity
+        }
+
         val layoutManager = LinearLayoutManager(activity)
-        val activity = activity as MainActivity
+        //val activity = activity as MainActivity
         val recyclerView: RecyclerView = activity.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = layoutManager
         adapter = PlaceAdapter(this, viewModel.placeList)
@@ -58,9 +65,9 @@ class PlaceFragment : Fragment() {
                 viewModel.searchPlaces(content)
             } else {
                 /*
-                   当输入搜索框中的内容为空时
-                   就将RecyclerView隐藏起来,同时将那张仅用于美观用途的背景图显示出来
-                */
+               当输入搜索框中的内容为空时
+               就将RecyclerView隐藏起来,同时将那张仅用于美观用途的背景图显示出来
+            */
                 recyclerView.visibility = View.GONE
                 bgImageView.visibility = View.VISIBLE
                 viewModel.placeList.clear()
